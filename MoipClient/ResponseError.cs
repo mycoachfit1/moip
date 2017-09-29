@@ -29,10 +29,11 @@ namespace MoipClient
                 var msg = "";
                 if (!string.IsNullOrEmpty(Message))
                 {
-                    msg += Message + (Errors.Length > 0 ? Environment.NewLine : "");
+                    msg += Message + (Errors != null && Errors.Length > 0 ? Environment.NewLine : "");
                 }
 
-                msg += string.Join(Environment.NewLine, Errors.Select(x => x.Description).ToArray());
+                if (Errors != null && Errors.Length > 0)
+                    msg += string.Join(Environment.NewLine, Errors.Select(x => x.Description).ToArray());
 
                 return msg;
             }

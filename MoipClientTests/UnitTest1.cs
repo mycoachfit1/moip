@@ -50,19 +50,60 @@ namespace MoipClientTests
                 Type = ReceiverType.PRIMARY,
                 Amount = new AmountReceiverCreateOrdersRequest()
                 {
-                    Percentual = 100,
-                    ValueFixed = 100
+                    Percentual = 1,
+                    ValueFixed = 1
                 },
                 FeePayor = false,
                 moipAccount = new MoipAccountReceiverCreateOrdersRequest()
                 {
-                    Id = "0212"
+                    Id = "MPA-9B34B54E286C"
                 }
             });
 
             var retorno = api.CreateOrder(req);
         }
-    }
+
+        [TestMethod]
+        public void PaymentApi_CreateOrder()
+        {
+            PaymentAPI api = new PaymentAPI(BaseUrl, apiToken, apiKey);
+            CreatePaymentRequest req = new CreatePaymentRequest()
+            {
+                DelayCapture= false,
+                InstallmentCount = 1,
+                FundingInstrument = new FundingInstrumentCreditCard() {
+                    CreditCard = new CreditCardAddCreditCardRequest()
+                    {
+                        Id = "",
+                        Cvc = 546,
+                        ExpirationMonth = 9,
+                        ExpirationYear = 2018,
+                        Holder = new HolderDto()
+                        {
+                            Birthdate = DateTime.Now.AddYears(-25),
+                            Fullname = "TESTE MOIP NET",
+                            Phone = new PhoneDto()
+                            {
+                                AreaCode = 11,
+                                CountryCode = 55,
+                                Number = 98985959
+                            },
+                            TaxDocument = new DocumentDto()
+                            {
+                                Number = "95672830013",
+                                Type = DocumentType.CPF
+                            }
+                        },
+                        Number = "4556832098622729"
+                    }
+                }
+
+            };
+            var retorno = api.CreatePayment("ORD-BPFPJW5O5QK5", req);
+        }
+
+            //ORD-BPFPJW5O5QK5
+        }
 
     [TestClass]
     public class CustomersApiTests : BaseApiIntegratedTests

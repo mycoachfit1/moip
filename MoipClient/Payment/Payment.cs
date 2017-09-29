@@ -16,12 +16,12 @@ namespace MoipClient
 
         public CreatePaymentResponse CreatePayment(string idOrder, CreatePaymentRequest req)
         {
-            return DoPost<CreatePaymentRequest, CreatePaymentResponse>(new Uri($"v2/orders/{idOrder}/payments"), req);
+            return DoPost<CreatePaymentRequest, CreatePaymentResponse>(new Uri(ApiUri, $"v2/orders/{idOrder}/payments"), req);
         }
 
         public async Task<CreatePaymentResponse> CreatePaymentAsync(string idOrder, CreatePaymentRequest req)
         {
-            return await DoPostAsync<CreatePaymentRequest, CreatePaymentResponse>(new Uri($"v2/orders/{idOrder}/payments"), req);
+            return await DoPostAsync<CreatePaymentRequest, CreatePaymentResponse>(new Uri(ApiUri, $"v2/orders/{idOrder}/payments"), req);
         }
 
         /// <summary>
@@ -32,7 +32,7 @@ namespace MoipClient
         /// <returns></returns>
         public CreatePaymentResponse GetPayment(string idPayment)
         {
-            return DoGet<CreatePaymentResponse>(new Uri($"v2/payments/{idPayment}"));
+            return DoGet<CreatePaymentResponse>(new Uri(ApiUri, $"v2/payments/{idPayment}"));
         }
 
         /// <summary>
@@ -42,7 +42,7 @@ namespace MoipClient
         /// <returns></returns>
         public async Task<CreatePaymentResponse> GetPaymentAsync(string idPayment)
         {
-            return await DoGetAsync<CreatePaymentResponse>(new Uri($"v2/payments/{idPayment}"));
+            return await DoGetAsync<CreatePaymentResponse>(new Uri(ApiUri, $"v2/payments/{idPayment}"));
         }
 
     }
@@ -114,6 +114,8 @@ namespace MoipClient
 
     public abstract class FundingInstrumentCreatePaymentRequest
     {
+        [Newtonsoft.Json.JsonProperty("method")]
+        [Newtonsoft.Json.JsonConverter(typeof(Newtonsoft.Json.Converters.StringEnumConverter))]
         public abstract MethodType Method { get; }
         //public Boleto Boleto { get; set; }
         //public DebitoOnline OnlineDebit { get; set; }
@@ -121,30 +123,15 @@ namespace MoipClient
 
     }
 
-    public class CreditCardFundingInstrumentCreditCard
-    {
-        /// <summary>
-        /// Identificador do cartão de crédito no previamente salvo no Moip. string(16)
-        /// </summary>
-        public string Id { get; set; }
-        /// <summary>
-        /// Dados criptografados do cartão de crédito
-        /// </summary>
-        public string Hash { get; set; }
-
-        /// <summary>
-        /// Determina durante a criação de um pagamento se o cartão de crédito utilizado deve ser salvo para oneClickBuy (default: true).l
-        /// </summary>
-        public bool Store { get; set; }
-
-        public HolderDto Holder { get; set; }
-    }
-
+   
 
     public class FundingInstrumentCreditCard : FundingInstrumentCreatePaymentRequest
     {
+        [Newtonsoft.Json.JsonProperty("method")]
+        [Newtonsoft.Json.JsonConverter(typeof(Newtonsoft.Json.Converters.StringEnumConverter))]
         public override MethodType Method { get { return MethodType.CREDIT_CARD; } }
-        public CreditCardFundingInstrumentCreditCard CreditCard { get; set; }
+        [Newtonsoft.Json.JsonProperty("creditCard")]
+        public CreditCardAddCreditCardRequest CreditCard { get; set; }
     }
 
 
@@ -182,10 +169,24 @@ namespace MoipClient
     }
     public class CreatePaymentRequest
     {
+        /// <summary>
+        /// Número de parcelas. Válido para pagamentos por cartão. Se não for informado, o pagamento será realizado em 1 parcela. Mínimo 1 e Máximo 12.
+        /// </summary>
+        [Newtonsoft.Json.JsonProperty("installmentCount")]
         public int InstallmentCount { get; set; }
+
+        /// <summary>
+        /// Identificação de sua loja na fatura de cartão de crédito do comprador. string(13)
+        /// </summary>
+        [Newtonsoft.Json.JsonProperty("statementDescriptor")]
         public string StatementDescriptor { get; set; }
+        /// <summary>
+        /// Se o pagamento deve ser pré-autorizado para captura posterior. Válido apenas para pagamentos por cartão de crédito.
+        /// </summary>
+        [Newtonsoft.Json.JsonProperty("delayCapture")]
         public bool? DelayCapture { get; set; }
 
+        [Newtonsoft.Json.JsonProperty("fundingInstrument")]
         public FundingInstrumentCreatePaymentRequest FundingInstrument { get; set; }
         public DeviceCreatePaymentRequest Device { get; set; }
 
